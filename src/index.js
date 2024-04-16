@@ -172,3 +172,54 @@ app.post('/talker',
     await fs.writeFile(filePath, JSON.stringify(data));
     return res.status(201).json(addPessoaNova);
   });
+
+// Requisitos 6 E 7 Realizados com ajuda GPT
+// Req 6
+
+app.put('/talker/:id',
+  validarToken,
+  validarName,
+  validarAge,
+  validarTalk,
+  validarWatch,
+  validarRate,
+  async (req, res) => {
+    const talkerId = parseInt(req.params.id, 10); // Obtém o id da rota como um número inteiro
+    const data = await readTalkerFile(); // Lê os dados do arquivo JSON
+    // Encontra a pessoa palestrante com base no id da rota
+    const foundTalkerIndex = data.findIndex((talker) => talker.id === talkerId);
+    // Se não encontrar a pessoa palestrante, retorna 404
+    if (foundTalkerIndex === -1) {
+      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    }
+    // Atualiza os dados da pessoa palestrante com base no corpo da requisição
+    data[foundTalkerIndex] = {
+      id: data[foundTalkerIndex].id,
+      name: req.body.name,
+      age: req.body.age,
+      talk: req.body.talk,
+    };
+    await fs.writeFile(filePath, JSON.stringify(data)); // Escreve os dados atualizados no arquivo JSON
+    return res.status(200).json(data[foundTalkerIndex]); // Retorna a pessoa palestrante editada
+  });
+
+// Req 7
+
+app.delete('/talker/:id',
+  validarToken,
+  async (req, res) => {
+    const talkerId = parseInt(req.params.id, 10); // Obtém o id da rota como um número inteiro
+    const data = await readTalkerFile(); // Lê os dados do arquivo JSON
+    // Encontra a pessoa palestrante com base no id da rota
+    const foundTalkerIndex = data.findIndex((talker) => talker.id === talkerId);
+    // Se não encontrar a pessoa palestrante, retorna 404
+    if (foundTalkerIndex === -1) {
+      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    }
+    // Remove a pessoa palestrante do array de dados
+    data.splice(foundTalkerIndex, 1);
+    // Escreve os dados atualizados no arquivo JSON
+    await fs.writeFile(filePath, JSON.stringify(data));
+    // Retorna o status 204 sem conteúdo na resposta
+    return res.status(204).send();
+  });
