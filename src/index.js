@@ -76,18 +76,16 @@ app.post('/login', validarLogin, (req, res) => {
   res.status(200).json({ token });
 });
 
-
-
 // Validadores do Req 5
 
 // VALIDAR TOKEN
 const validarToken = (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
-    return res.status(401).json({ message: "Token não encontrado" });
+    return res.status(401).json({ message: 'Token não encontrado' });
   }
   if (token.length !== 16) {
-    return res.status(401).json({ message: "Token inválido" });
+    return res.status(401).json({ message: 'Token inválido' });
   }
   next();
 };
@@ -96,10 +94,10 @@ const validarToken = (req, res, next) => {
 const validarName = (req, res, next) => {
   const nameValido = req.body.name;
   if (!nameValido) {
-    return res.status(400).json({ message: "O campo \"name\" é obrigatório" });
+    return res.status(400).json({ message: 'O campo "name" é obrigatório' });
   }
   if (nameValido.length < 3) {
-    return res.status(400).json({ message: "O \"name\" deve ter pelo menos 3 caracteres" });
+    return res.status(400).json({ message: 'O "name" deve ter pelo menos 3 caracteres' });
   }
   next();
 };
@@ -108,10 +106,11 @@ const validarName = (req, res, next) => {
 const validarAge = (req, res, next) => {
   const idadeValida = req.body.age;
   if (!idadeValida) {
-    return res.status(400).json({ message: "O campo \"age\" é obrigatório" });
+    return res.status(400).json({ message: 'O campo "age" é obrigatório' });
   }
   if (!Number.isInteger(idadeValida) || idadeValida < 18) {
-    return res.status(400).json({ message: "O campo \"age\" deve ser um número inteiro igual ou maior que 18" });
+    return res.status(400).json({ message:
+      'O campo "age" deve ser um número inteiro igual ou maior que 18' });
   }
   next();
 };
@@ -120,44 +119,56 @@ const validarAge = (req, res, next) => {
 const validarTalk = (req, res, next) => {
   const talkValida = req.body.talk;
   if (!talkValida) {
-    return res.status(400).json({ message: "O campo \"talk\" é obrigatório" });
-  };
+    return res.status(400).json({ message: 'O campo "talk" é obrigatório' });
+  }
   next();
 };
 
-// VALIDAR WATCHEDAT + RATE
-const validarWatchRate = (req, res, next) => {
+// VALIDAR WATCHEDAT
+const validarWatch = (req, res, next) => {
   const watchedAlv = req.body.talk.watchedAt;
-  const rateAlv = req.body.talk.rate;
   const watchedAtRegex = /^\d{2}\/\d{2}\/\d{4}$/;
   if (!watchedAlv) {
-    return res.status(400).json({ message: "O campo \"watchedAt\" é obrigatório" });
-  };
+    return res.status(400).json({ message: 'O campo "watchedAt" é obrigatório' });
+  }
   if (!watchedAtRegex.test(watchedAlv)) {
-    return res.status(400).json({ message: "O campo \"watchedAt\" deve ter o formato \"dd/mm/aaaa\"" });
-  };
-  if (rateAlv === undefined) {
-    return res.status(400).json({ message: "O campo \"rate\" é obrigatório" });
-  };
-  if (!Number.isInteger(rateAlv) || rateAlv < 1 || rateAlv > 5) {
-    return res.status(400).json({ message: "O campo \"rate\" deve ser um número inteiro entre 1 e 5" });
-  };
+    return res.status(400).json({ message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"' });
+  }
   next();
 };
 
-app.post('/talker', validarToken, validarName, validarAge, validarTalk, validarWatchRate, async (req, res) => {
-  const data = await readTalkerFile(); // recebemos o atual
-  const pessoaNova = req.body;
+// VALIDAR RATE
+const validarRate = (req, res, next) => {
+  const rateAlv = req.body.talk.rate;
+  if (rateAlv === undefined) {
+    return res.status(400).json({ message: 'O campo "rate" é obrigatório' });
+  }
+  if (!Number.isInteger(rateAlv) || rateAlv < 1 || rateAlv > 5) {
+    return res.status(400).json({ message: 
+      'O campo "rate" deve ser um número inteiro entre 1 e 5' });
+  }
+  next();
+};
 
-  const addPessoaNova = {
-    id: data.length +1,
-    name: pessoaNova.name,
-    age: pessoaNova.age,
-    talk: pessoaNova.talk,
-  };
+app.post('/talker',
+  validarToken,
+  validarName,
+  validarAge,
+  validarTalk,
+  validarWatch,
+  validarRate,
+  async (req, res) => {
+    const data = await readTalkerFile(); // recebemos o atual
+    const pessoaNova = req.body;
 
-  data.push(addPessoaNova);
-  await fs.writeFile(filePath, JSON.stringify(data));
-  return res.status(201).json(addPessoaNova)
-});
+    const addPessoaNova = {
+      id: data.length + 1,
+      name: pessoaNova.name,
+      age: pessoaNova.age,
+      talk: pessoaNova.talk,
+    };
 
+    data.push(addPessoaNova);
+    await fs.writeFile(filePath, JSON.stringify(data));
+    return res.status(201).json(addPessoaNova);
+  });
