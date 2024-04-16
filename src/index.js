@@ -41,12 +41,12 @@ app.get('/talker', async (req, res) => {
 
 app.get('/talker/:id', async (req, res) => {
   const talkerData = await readTalkerFile();
-  const { id } = req.params // Pegar o valor do id da rota (só passou desestruturando!?)
+  const { id } = req.params; // Pegar o valor do id da rota (só passou desestruturando!?)
   console.log(id);
-  const talker = talkerData.find(talker => talker.id === parseInt(id)); // Buscamos pelo mesmo id, 'parteInt' é pq o id é uma string, assim transformamos em number
-  if (talker) {
-    res.status(200).json(talker);
+  const foundTalker = talkerData.find((talker) => talker.id === parseInt(id, 10)); // Buscamos pelo mesmo id, 'parteInt' é pq o id é uma string, assim transformamos em number
+  if (foundTalker) {
+    res.status(200).json(foundTalker);
   } else {
     res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
-  };
+  }
 });
