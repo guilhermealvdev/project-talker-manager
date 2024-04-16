@@ -24,10 +24,10 @@ const filePath = path.resolve('src', 'talker.json');
 
 // Funçao criada pra importar os dados do talker.json (igual da aula)
 const readTalkerFile = async () => {
-  const data = await fs.readFile(filePath, 'utf-8') // Pegamos o arq aqui
+  const data = await fs.readFile(filePath, 'utf-8'); // Pegamos o arq aqui
   console.log(data); // Aqui vemos o arquivo JSON
-  const talkerData = JSON.parse(data) // convertemos pro formato de obj javascript aqui
-  console.log('###################### Alv ######################')
+  const talkerData = JSON.parse(data); // convertemos pro formato de obj javascript aqui
+  console.log('###################### Alv ######################');
   console.log(talkerData); // Aqui vemos o obj JS
   return talkerData;
 };
@@ -36,5 +36,5 @@ readTalkerFile();
 
 app.get('/talker', async (req, res) => {
   const talkerData = await readTalkerFile();
-  res.status(200).json(talkerData)
+  res.status(200).json(talkerData);
 });
